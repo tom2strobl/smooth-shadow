@@ -1,0 +1,21 @@
+{
+  "name": "getSmoothShadow Benchmark",
+  "date": "2022-10-11T20:13:35.205Z",
+  "version": "1.0.0",
+  "results": [
+    {
+      "name": "getSmoothShadow",
+      "ops": 179818,
+      "margin": 1.92,
+      "percentSlower": 0
+    }
+  ],
+  "fastest": {
+    "name": "getSmoothShadow",
+    "index": 0
+  },
+  "slowest": {
+    "name": "getSmoothShadow",
+    "index": 0
+  }
+}

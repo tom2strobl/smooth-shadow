@@ -1,0 +1,72 @@
+{
+  "name": "smooth-shadow",
+  "version": "0.1.0",
+  "description": "Opionated library to generate consistent smooth box-shadows, ideally for design token generation.",
+  "main": "lib/index.js",
+  "module": "lib/index.mjs",
+  "typings": "lib/index.d.ts",
+  "author": {
+    "name": "Thomas Strobl",
+    "email": "thomas@thomas-strobl.com",
+    "url": "https://thomas-strobl.com"
+  },
+  "scripts": {
+    "build-demo": "rollup -c rollup.demo.config.js",
+    "build": "rollup -c",
+    "test": "jest --config jest.json --coverage",
+    "benchmark": "node benchmark/index.js"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/index.d.ts",
+    "lib/index.js.map",
+    "lib/index.mjs",
+    "lib/index.mjs.map"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tom2strobl/smooth-shadow.git"
+  },
+  "keywords": [
+    "font-weight",
+    "font-style",
+    "fonts",
+    "typefaces",
+    "font",
+    "typeface",
+    "typed"
+  ],
+  "license": "MIT",
+  "np": {
+    "2fa": false
+  },
+  "bugs": {
+    "url": "https://github.com/tom2strobl/smooth-shadow/issues"
+  },
+  "homepage": "https://github.com/tom2strobl/smooth-shadow#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.8",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.18.6",
+    "@babel/preset-typescript": "^7.16.7",
+    "@rollup/plugin-babel": "^6.0.0",
+    "@rollup/plugin-commonjs": "^23.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-replace": "^5.0.0",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "babel-jest": "^27.5.1",
+    "benny": "^3.7.1",
+    "esbuild": "^0.15.7",
+    "jest": "^27.5.1",
+    "prettier": "^2.6.2",
+    "process": "^0.11.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup": "^2.79.0",
+    "rollup-plugin-dts": "^4.2.2",
+    "rollup-plugin-esbuild": "^4.10.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.6.3"
+  }
+}
