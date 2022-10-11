@@ -2,7 +2,7 @@
 
 > Generate smooth, consistent and always-sexy box-shadows, no matter the size, ideal for design token generation.
 
-![Screenshot of the demo](docs/demo.jpg)
+![Screenshot of the demo](docs/demo.png)
 
 [Demo](http://tom2strobl.github.io/smooth-shadow)
 
