@@ -1,4 +1,4 @@
-# parse-font-name
+# smooth-shadow
 
 > Generate smooth, consistent and always-sexy box-shadows, no matter the size, ideal for design token generation.
 
