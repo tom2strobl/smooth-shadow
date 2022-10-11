@@ -28,13 +28,11 @@
     "url": "git+https://github.com/tom2strobl/smooth-shadow.git"
   },
   "keywords": [
-    "font-weight",
-    "font-style",
-    "fonts",
-    "typefaces",
-    "font",
-    "typeface",
-    "typed"
+    "css",
+    "box-shadow",
+    "shadow",
+    "smooth",
+    "easing"
   ],
   "license": "MIT",
   "np": {

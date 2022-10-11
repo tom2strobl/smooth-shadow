@@ -11,10 +11,11 @@ As [Tobias](https://tobiasahlin.com/blog/layered-smooth-box-shadows/) already po
 Many great people tackled the issue from Tobias Sahlin, to Philipp Brumm and Josh W Comeau, but none of them offered their solution as OSS-code. The previous attempts at libraries of other folks give you lots of settings like direct alpha, blur and spread settings, but on the flipside that means and you have to find good values for small and large shadows yourself.
 
 `smooth-shadow` is largely opinionated in what makes a great smooth shadow and only offers you relevant options for your usecase:
-a) Distance (basically the elevation/size of the shadow)
-b) Intensity (which should vary depending on environment color)
-c) Sharpness (which - although largely opinionated - leaves a little room for the projects style)
-d) Color (as real cast shadows pick up the color of reflected light from the surface they are cast on)
+
+- Distance (basically the elevation/size of the shadow)
+- Intensity (which should vary depending on environment color)
+- Sharpness (which - although largely opinionated - leaves a little room for the projects style)
+- Color (as real cast shadows pick up the color of reflected light from the surface they are cast on)
 
 - *zero* dependencies
 - *fully typed* in typescript
