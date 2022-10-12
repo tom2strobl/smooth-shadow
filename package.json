@@ -1,6 +1,6 @@
 {
   "name": "smooth-shadow",
-  "version": "0.2.2",
+  "version": "1.0.0",
   "description": "Opionated library to generate consistent smooth box-shadows, ideally for design token generation.",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
