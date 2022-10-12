@@ -7,7 +7,7 @@ const invlerp = (x: number, y: number, a: number) => clamp((a - x) / (y - x))
 const roundPixel = (num: number): number => Math.round(num * 10) / 10
 const roundTransparency = (num: number): number => Math.round(num * 1000) / 1000
 
-type GetSmoothShadowProps = {
+type GetSmoothShadowOptions = {
   distance?: number // 1-1000
   intensity?: number // 0-1
   sharpness?: number // 0-1
@@ -15,13 +15,15 @@ type GetSmoothShadowProps = {
   lightPosition?: [number, number] // [-1 - 1, -1 - 1], where 0 is the center
 }
 
-export const getSmoothShadow = ({
-  distance = 100,
-  intensity = 0.5,
-  sharpness = 0.5,
-  color = [0, 0, 0],
-  lightPosition = [-0.35, -0.5]
-}: GetSmoothShadowProps): string => {
+export const getSmoothShadow = (options: GetSmoothShadowOptions): string => {
+  const defaults = {
+    distance: 100,
+    intensity: 0.4,
+    sharpness: 0.7,
+    color: [0, 0, 0],
+    lightPosition: [-0.35, -0.5]
+  }
+  const { distance, intensity, sharpness, color, lightPosition } = { ...defaults, ...options }
   // in terms of performance it makes sense to limit a maximum
   const maxDistance = 2000
   const maxLayers = 24
