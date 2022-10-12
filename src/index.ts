@@ -41,9 +41,9 @@ export const getSmoothShadow: GetSmoothShadowFunction = (
   const finalTransparency = (transparencyBase / maxLayers) * intensity
   // no reason to make this dynamic as it always looks good
   const transparencyEasing = BezierEasing(0, 1, 0.8, 0.5)
-  // we like it if the light source is closer to the center
-  const distanceX = distance * 0.75
-  const distanceY = distance
+  // we like it if the light source is closer to the center and generally speaking we want some shadow left at the top and left as well
+  const distanceX = distance * 0.5
+  const distanceY = distance * 0.75
   // maxBlur scales with distance
   const maxBlur = lerp(200, 500, interpolatedDistance)
   // factor in sharpness to base blur value

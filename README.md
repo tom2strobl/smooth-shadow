@@ -17,6 +17,8 @@ Many great people tackled the issue from Tobias Sahlin, to Philipp Brumm and Jos
 - Sharpness (which - although largely opinionated - leaves a little room for the projects style)
 - Color (as real cast shadows pick up the color of reflected light from the surface they are cast on)
 
+And as always:
+
 - *zero* dependencies
 - *fully typed* in typescript
 - *small* footprint (2.3kb minified)

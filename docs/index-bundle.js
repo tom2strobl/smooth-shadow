@@ -2696,13 +2696,13 @@
 
 	var React = /*@__PURE__*/getDefaultExportFromCjs(react.exports);
 
-	var NEWTON_ITERATIONS = 4;
-	var NEWTON_MIN_SLOPE = 1e-3;
-	var SUBDIVISION_PRECISION = 1e-7;
-	var SUBDIVISION_MAX_ITERATIONS = 10;
-	var kSplineTableSize = 11;
-	var kSampleStepSize = 1 / (kSplineTableSize - 1);
-	var float32ArraySupported = typeof Float32Array === "function";
+	const NEWTON_ITERATIONS = 4;
+	const NEWTON_MIN_SLOPE = 1e-3;
+	const SUBDIVISION_PRECISION = 1e-7;
+	const SUBDIVISION_MAX_ITERATIONS = 10;
+	const kSplineTableSize = 11;
+	const kSampleStepSize = 1 / (kSplineTableSize - 1);
+	const float32ArraySupported = typeof Float32Array === "function";
 
 	function A(aA1, aA2) {
 	  return 1 - 3 * aA2 + 3 * aA1;
@@ -2725,9 +2725,9 @@
 	}
 
 	function binarySubdivide(aX, aA, aB, mX1, mX2) {
-	  var currentX,
-	      currentT,
-	      i = 0;
+	  let currentX;
+	  let currentT;
+	  let i = 0;
 
 	  do {
 	    currentT = aA + (aB - aA) / 2;
@@ -2744,14 +2744,14 @@
 	}
 
 	function newtonRaphsonIterate(aX, aGuessT, mX1, mX2) {
-	  for (var i = 0; i < NEWTON_ITERATIONS; ++i) {
-	    var currentSlope = getSlope(aGuessT, mX1, mX2);
+	  for (let i = 0; i < NEWTON_ITERATIONS; ++i) {
+	    const currentSlope = getSlope(aGuessT, mX1, mX2);
 
 	    if (currentSlope === 0) {
 	      return aGuessT;
 	    }
 
-	    var currentX = calcBezier(aGuessT, mX1, mX2) - aX;
+	    const currentX = calcBezier(aGuessT, mX1, mX2) - aX;
 	    aGuessT -= currentX / currentSlope;
 	  }
 
@@ -2771,25 +2771,25 @@
 	    return LinearEasing;
 	  }
 
-	  var sampleValues = float32ArraySupported ? new Float32Array(kSplineTableSize) : new Array(kSplineTableSize);
+	  const sampleValues = float32ArraySupported ? new Float32Array(kSplineTableSize) : new Array(kSplineTableSize);
 
-	  for (var i = 0; i < kSplineTableSize; ++i) {
+	  for (let i = 0; i < kSplineTableSize; ++i) {
 	    sampleValues[i] = calcBezier(i * kSampleStepSize, mX1, mX2);
 	  }
 
 	  function getTForX(aX) {
-	    var intervalStart = 0;
-	    var currentSample = 1;
-	    var lastSample = kSplineTableSize - 1;
+	    let intervalStart = 0;
+	    let currentSample = 1;
+	    const lastSample = kSplineTableSize - 1;
 
 	    for (; currentSample !== lastSample && sampleValues[currentSample] <= aX; ++currentSample) {
 	      intervalStart += kSampleStepSize;
 	    }
 
 	    --currentSample;
-	    var dist = (aX - sampleValues[currentSample]) / (sampleValues[currentSample + 1] - sampleValues[currentSample]);
-	    var guessForT = intervalStart + dist * kSampleStepSize;
-	    var initialSlope = getSlope(guessForT, mX1, mX2);
+	    const dist = (aX - sampleValues[currentSample]) / (sampleValues[currentSample + 1] - sampleValues[currentSample]);
+	    const guessForT = intervalStart + dist * kSampleStepSize;
+	    const initialSlope = getSlope(guessForT, mX1, mX2);
 
 	    if (initialSlope >= NEWTON_MIN_SLOPE) {
 	      return newtonRaphsonIterate(aX, guessForT, mX1, mX2);
@@ -2832,8 +2832,8 @@
 	  const transparencyBase = distanceTransparency(interpolatedDistance) / interpolatedDistance * 6.5;
 	  const finalTransparency = transparencyBase / maxLayers * intensity;
 	  const transparencyEasing = bezier(0, 1, 0.8, 0.5);
-	  const distanceX = distance * 0.75;
-	  const distanceY = distance;
+	  const distanceX = distance * 0.5;
+	  const distanceY = distance * 0.75;
 	  const maxBlur = lerp(200, 500, interpolatedDistance);
 	  const finalBlur = lerp(100, maxBlur, sharpness);
 	  const blurSharpnessEase = bezier(1, 0, 1, 0);
