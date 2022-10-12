@@ -2696,166 +2696,125 @@
 
 	var React = /*@__PURE__*/getDefaultExportFromCjs(react.exports);
 
-	const NEWTON_ITERATIONS = 4;
-	const NEWTON_MIN_SLOPE = 1e-3;
-	const SUBDIVISION_PRECISION = 1e-7;
-	const SUBDIVISION_MAX_ITERATIONS = 10;
-	const kSplineTableSize = 11;
-	const kSampleStepSize = 1 / (kSplineTableSize - 1);
-	const float32ArraySupported = typeof Float32Array === "function";
+	const NEWTON_ITERATIONS = 4,
+	      NEWTON_MIN_SLOPE = .001,
+	      SUBDIVISION_PRECISION = 1e-7,
+	      SUBDIVISION_MAX_ITERATIONS = 10,
+	      kSplineTableSize = 11,
+	      kSampleStepSize = 1 / (kSplineTableSize - 1),
+	      float32ArraySupported = "function" == typeof Float32Array;
 
-	function A(aA1, aA2) {
-	  return 1 - 3 * aA2 + 3 * aA1;
+	function A(e, r) {
+	  return 1 - 3 * r + 3 * e;
 	}
 
-	function B(aA1, aA2) {
-	  return 3 * aA2 - 6 * aA1;
+	function B(e, r) {
+	  return 3 * r - 6 * e;
 	}
 
-	function C(aA1) {
-	  return 3 * aA1;
+	function C(e) {
+	  return 3 * e;
 	}
 
-	function calcBezier(aT, aA1, aA2) {
-	  return ((A(aA1, aA2) * aT + B(aA1, aA2)) * aT + C(aA1)) * aT;
+	function calcBezier(e, r, n) {
+	  return ((A(r, n) * e + B(r, n)) * e + C(r)) * e;
 	}
 
-	function getSlope(aT, aA1, aA2) {
-	  return 3 * A(aA1, aA2) * aT * aT + 2 * B(aA1, aA2) * aT + C(aA1);
+	function getSlope(e, r, n) {
+	  return 3 * A(r, n) * e * e + 2 * B(r, n) * e + C(r);
 	}
 
-	function binarySubdivide(aX, aA, aB, mX1, mX2) {
-	  let currentX;
-	  let currentT;
-	  let i = 0;
+	function binarySubdivide(e, r, n, t, i) {
+	  var a;
+	  let o,
+	      l = 0;
 
-	  do {
-	    currentT = aA + (aB - aA) / 2;
-	    currentX = calcBezier(currentT, mX1, mX2) - aX;
+	  for (; 0 < (a = calcBezier(o = r + (n - r) / 2, t, i) - e) ? n = o : r = o, Math.abs(a) > SUBDIVISION_PRECISION && ++l < SUBDIVISION_MAX_ITERATIONS;);
 
-	    if (currentX > 0) {
-	      aB = currentT;
-	    } else {
-	      aA = currentT;
-	    }
-	  } while (Math.abs(currentX) > SUBDIVISION_PRECISION && ++i < SUBDIVISION_MAX_ITERATIONS);
-
-	  return currentT;
+	  return o;
 	}
 
-	function newtonRaphsonIterate(aX, aGuessT, mX1, mX2) {
-	  for (let i = 0; i < NEWTON_ITERATIONS; ++i) {
-	    const currentSlope = getSlope(aGuessT, mX1, mX2);
-
-	    if (currentSlope === 0) {
-	      return aGuessT;
-	    }
-
-	    const currentX = calcBezier(aGuessT, mX1, mX2) - aX;
-	    aGuessT -= currentX / currentSlope;
+	function newtonRaphsonIterate(r, n, t, i) {
+	  for (let e = 0; e < NEWTON_ITERATIONS; ++e) {
+	    var a = getSlope(n, t, i);
+	    if (0 === a) return n;
+	    n -= (calcBezier(n, t, i) - r) / a;
 	  }
 
-	  return aGuessT;
+	  return n;
 	}
 
-	function LinearEasing(x) {
-	  return x;
+	function LinearEasing(e) {
+	  return e;
 	}
 
-	function bezier(mX1, mY1, mX2, mY2) {
-	  if (!(0 <= mX1 && mX1 <= 1 && 0 <= mX2 && mX2 <= 1)) {
-	    throw new Error("bezier x values must be in [0, 1] range");
-	  }
+	function bezier(o, r, l, n) {
+	  if (!(0 <= o && o <= 1 && 0 <= l && l <= 1)) throw new Error("bezier x values must be in [0, 1] range");
+	  if (o === r && l === n) return LinearEasing;
+	  const S = new (float32ArraySupported ? Float32Array : Array)(kSplineTableSize);
 
-	  if (mX1 === mY1 && mX2 === mY2) {
-	    return LinearEasing;
-	  }
+	  for (let e = 0; e < kSplineTableSize; ++e) S[e] = calcBezier(e * kSampleStepSize, o, l);
 
-	  const sampleValues = float32ArraySupported ? new Float32Array(kSplineTableSize) : new Array(kSplineTableSize);
+	  return function (e) {
+	    return 0 === e || 1 === e ? e : calcBezier(function (e) {
+	      let r = 0,
+	          n = 1;
 
-	  for (let i = 0; i < kSplineTableSize; ++i) {
-	    sampleValues[i] = calcBezier(i * kSampleStepSize, mX1, mX2);
-	  }
+	      for (var t = kSplineTableSize - 1; n !== t && S[n] <= e; ++n) r += kSampleStepSize;
 
-	  function getTForX(aX) {
-	    let intervalStart = 0;
-	    let currentSample = 1;
-	    const lastSample = kSplineTableSize - 1;
-
-	    for (; currentSample !== lastSample && sampleValues[currentSample] <= aX; ++currentSample) {
-	      intervalStart += kSampleStepSize;
-	    }
-
-	    --currentSample;
-	    const dist = (aX - sampleValues[currentSample]) / (sampleValues[currentSample + 1] - sampleValues[currentSample]);
-	    const guessForT = intervalStart + dist * kSampleStepSize;
-	    const initialSlope = getSlope(guessForT, mX1, mX2);
-
-	    if (initialSlope >= NEWTON_MIN_SLOPE) {
-	      return newtonRaphsonIterate(aX, guessForT, mX1, mX2);
-	    } else if (initialSlope === 0) {
-	      return guessForT;
-	    } else {
-	      return binarySubdivide(aX, intervalStart, intervalStart + kSampleStepSize, mX1, mX2);
-	    }
-	  }
-
-	  return function BezierEasing(x) {
-	    if (x === 0 || x === 1) {
-	      return x;
-	    }
-
-	    return calcBezier(getTForX(x), mY1, mY2);
+	      --n;
+	      var i = (e - S[n]) / (S[n + 1] - S[n]),
+	          a = getSlope(i = r + i * kSampleStepSize, o, l);
+	      return a >= NEWTON_MIN_SLOPE ? newtonRaphsonIterate(e, i, o, l) : 0 === a ? i : binarySubdivide(e, r, r + kSampleStepSize, o, l);
+	    }(e), r, n);
 	  };
 	}
 
-	const lerp = (x, y, a) => x * (1 - a) + y * a;
+	const lerp = (e, r, n) => e * (1 - n) + r * n,
+	      clamp = (e, r = 0, n = 1) => Math.min(n, Math.max(r, e)),
+	      invlerp = (e, r, n) => clamp((n - e) / (r - e)),
+	      roundPixel = e => Math.round(10 * e) / 10,
+	      roundTransparency = e => Math.round(1e3 * e) / 1e3,
+	      getSmoothShadow = e => {
+	  var _e, _e2, _e3, _e4, _e5;
 
-	const clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
-
-	const invlerp = (x, y, a) => clamp((a - x) / (y - x));
-
-	const roundPixel = num => Math.round(num * 10) / 10;
-
-	const roundTransparency = num => Math.round(num * 1e3) / 1e3;
-
-	const getSmoothShadow = ({
-	  distance = 100,
-	  intensity = 0.5,
-	  sharpness = 0.5,
-	  color = [0, 0, 0],
-	  lightPosition = [-0.35, -0.5]
-	}) => {
-	  const maxDistance = 2e3;
-	  const maxLayers = 24;
-	  const cdistance = clamp(distance * 2, 0, maxDistance);
-	  const cintensity = clamp(intensity, 0, 1);
-	  const csharpness = clamp(sharpness, 0, 1);
-	  const interpolatedDistance = invlerp(1, maxDistance, cdistance);
-	  const amountEasing = bezier(0.25, 1 - interpolatedDistance, 0.5, 1);
-	  const amountLayers = Math.round(maxLayers * amountEasing(interpolatedDistance));
-	  const distanceTransparency = bezier(0, 0.3, 0, 0.06);
-	  const transparencyBase = distanceTransparency(interpolatedDistance) / interpolatedDistance * 6.5;
-	  const finalTransparency = transparencyBase / maxLayers * cintensity;
-	  const transparencyEasing = bezier(0, 1, 0.8, 0.5);
-	  const distanceX = cdistance * (lightPosition[0] * -1);
-	  const distanceY = cdistance * (lightPosition[1] * -1);
-	  const maxBlur = lerp(200, 500, interpolatedDistance);
-	  const finalBlur = lerp(100, maxBlur, csharpness);
-	  const blurSharpnessEase = bezier(1, 0, 1, 0);
-	  const easingBlurSharpness = lerp(0, 2, blurSharpnessEase(1 - csharpness));
-	  const blurEasing = bezier(1, easingBlurSharpness, 1, easingBlurSharpness);
-	  const easingSharpness = lerp(0, 0.075, 1 - csharpness);
-	  const distanceEasing = bezier(1, easingSharpness, 1, easingSharpness);
-	  return Array.from(Array(amountLayers)).map((_, i) => {
-	    const transparencyCoeff = transparencyEasing(i / amountLayers);
-	    const distanceCoeff = distanceEasing(i / amountLayers);
-	    const blurCoeff = blurEasing(i / amountLayers);
-	    const x = roundPixel(distanceX * distanceCoeff);
-	    const y = roundPixel(distanceY * distanceCoeff);
-	    const b = roundPixel(finalBlur * blurCoeff);
-	    const t = roundTransparency(finalTransparency * transparencyCoeff);
-	    return `${x}px ${y}px ${b}px rgba(${color[0]},${color[1]},${color[2]},${t})`;
+	  var r = {
+	    distance: 100,
+	    intensity: .4,
+	    sharpness: .7,
+	    color: [0, 0, 0],
+	    lightPosition: [-.35, -.5]
+	  },
+	      n = ((_e = e) === null || _e === void 0 ? void 0 : _e.distance) || r.distance,
+	      t = ((_e2 = e) === null || _e2 === void 0 ? void 0 : _e2.intensity) || r.intensity,
+	      i = ((_e3 = e) === null || _e3 === void 0 ? void 0 : _e3.sharpness) || r.sharpness;
+	  const a = ((_e4 = e) === null || _e4 === void 0 ? void 0 : _e4.color) || r.color;
+	  var e = ((_e5 = e) === null || _e5 === void 0 ? void 0 : _e5.lightPosition) || r.lightPosition,
+	      r = clamp(2 * n, 0, 2e3),
+	      n = clamp(t, 0, 1),
+	      t = clamp(i, 0, 1),
+	      i = invlerp(1, 2e3, r),
+	      o = bezier(.25, 1 - i, .5, 1);
+	  const l = Math.round(24 * o(i)),
+	        S = bezier(0, .3, 0, .06)(i) / i * 6.5 / 24 * n,
+	        p = bezier(0, 1, .8, .5),
+	        c = r * (-1 * e[0]),
+	        u = r * (-1 * e[1]);
+	  o = lerp(200, 500, i);
+	  const s = lerp(100, o, t);
+	  n = bezier(1, 0, 1, 0), r = lerp(0, 2, n(1 - t));
+	  const I = bezier(1, r, 1, r);
+	  e = lerp(0, .075, 1 - t);
+	  const f = bezier(1, e, 1, e);
+	  return Array.from(Array(l)).map((e, r) => {
+	    var n = p(r / l),
+	        t = f(r / l),
+	        r = I(r / l),
+	        i = roundPixel(c * t),
+	        t = roundPixel(u * t),
+	        r = roundPixel(s * r),
+	        n = roundTransparency(S * n);
+	    return `${i}px ${t}px ${r}px rgba(${a[0]},${a[1]},${a[2]},${n})`;
 	  }).join(", ");
 	};
 

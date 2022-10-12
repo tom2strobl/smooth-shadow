@@ -16,6 +16,7 @@ type GetSmoothShadowOptions = {
 }
 
 export const getSmoothShadow = (options: GetSmoothShadowOptions): string => {
+  // establish good defaults
   const defaults = {
     distance: 100,
     intensity: 0.4,
@@ -23,7 +24,12 @@ export const getSmoothShadow = (options: GetSmoothShadowOptions): string => {
     color: [0, 0, 0],
     lightPosition: [-0.35, -0.5]
   }
-  const { distance, intensity, sharpness, color, lightPosition } = { ...defaults, ...options }
+  // can't do { ...defaults, ...options } because if a value in options is set to undefined, it will override a default value
+  const distance = options?.distance || defaults.distance
+  const intensity = options?.intensity || defaults.intensity
+  const sharpness = options?.sharpness || defaults.sharpness
+  const color = options?.color || defaults.color
+  const lightPosition = options?.lightPosition || defaults.lightPosition
   // in terms of performance it makes sense to limit a maximum
   const maxDistance = 2000
   const maxLayers = 24
