@@ -1,4 +1,10 @@
-declare type GetSmoothShadowFunction = (distance?: number, intensity?: number, sharpness?: number, rgb?: [number, number, number]) => string;
-declare const getSmoothShadow: GetSmoothShadowFunction;
+declare type GetSmoothShadowProps = {
+    distance?: number;
+    intensity?: number;
+    sharpness?: number;
+    color?: [number, number, number];
+    lightPosition?: [number, number];
+};
+declare const getSmoothShadow: ({ distance, intensity, sharpness, color, lightPosition }: GetSmoothShadowProps) => string;
 
 export { getSmoothShadow };

@@ -16,6 +16,7 @@ Many great people tackled the issue from Tobias Sahlin, to Philipp Brumm and Jos
 - Intensity (which should vary depending on environment color)
 - Sharpness (which - although largely opinionated - leaves a little room for the projects style)
 - Color (as real cast shadows pick up the color of reflected light from the surface they are cast on)
+- Light Position (to determine in which direction the shadow should cast)
 
 And as always:
 
@@ -34,7 +35,7 @@ And as always:
 import { getSmoothShadow } from 'smooth-shadow'
 
 // it returns a box-shadow css statement ready to use
-const boxShadow = getSmoothShadow(100, 0.5, 0.5)
+const boxShadow = getSmoothShadow()
 
 // eg. on a jsx component
 <div style={{ boxShadow }} />
@@ -43,13 +44,19 @@ const boxShadow = getSmoothShadow(100, 0.5, 0.5)
 styled.div`box-shadow: ${boxShadow}`
 
 // or eg. even better in a styled-component (or any other framework) theme
-const cardShadow = getSmoothShadow(100, 0.5, 0.5)
+const cardShadow = getSmoothShadow({ distance: 100 })
 const theme = { cardShadow }
 <ThemeProvider theme={theme} />
 styled.div`box-shadow: ${({ theme }) => theme.cardShadow};`
 
 // or eg. even better better as a shadow factory
-const appShadow = (distance: number) => getSmoothShadow(distance, 0.5, 0.5)
+const appShadow = (distance: number) => getSmoothShadow({
+  distance,
+  intensity: 0.2,
+  sharpness: 0.7,
+  color: [69,69,69],
+  lightPosition: [0, -0.5]
+})
 const cardShadowSmall = appShadow(50)
 const cardShadowBig = appShadow(200)
 const theme = { cardShadowSmall, cardShadowBig }
@@ -59,7 +66,7 @@ const BigCard = styled.div`box-shadow: ${({ theme }) => theme.cardShadowBig};`
 ```
 
 ```typescript
-getSmoothShadow((
+getSmoothShadow({
   // the distance the shadow travels, larger distance = larger shadow
   distance?: number, // default 100 (between 0 & 1000)
   // sort of your "opacity" parameter if you will
@@ -67,15 +74,17 @@ getSmoothShadow((
   // low values result in a more mellow shadow, high values in a more crispy experience
   sharpness?: number, // default 0.5 (between 0 & 1)
   // on colored backgrounds you should tint your shadows for more sexiness, totally optional though
-  rgb?: [number, number, number] // default [0, 0, 0]
-) => string
+  color?: [number, number, number], // default [0, 0, 0] ([0-255, 0-255, 0-255])
+  // position of the lighton x/y axis. 0 is the center, -1 left/top, 1 right/bottom
+  lightPosition?: [number, number] // [-1 - 1, -1 - 1], where 0 is the center
+}) => string
 ```
 
 For the code example of the screenshot / the [Demo](http://tom2strobl.github.io/smooth-shadow), check out `/docs/index.js`.
 
 ## How it works
 
-Depending on `distance` a good amount of layers is determined and then through carefully self-crafted bezier-easing-functions in combination with the `sharpness` and `intensity` arguments realistic looking results are plotted.
+Depending on `distance` a good amount of layers (more layers means softer result but less performance, so we try to find the best tradeoff) is determined and then through linear interpolation and carefully self-crafted bezier-easing-functions in combination with the `sharpness` and `intensity` arguments realistic looking results are plotted. `color` and `lightPosition` are rather straightforward.
 
 ## Performance
 

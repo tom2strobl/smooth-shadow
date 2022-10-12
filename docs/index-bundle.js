@@ -2819,27 +2819,33 @@
 
 	const roundTransparency = num => Math.round(num * 1e3) / 1e3;
 
-	const getSmoothShadow = (rawDistance = 100, rawIntensity = 0.5, rawSharpness = 0.5, rgb = [0, 0, 0]) => {
+	const getSmoothShadow = ({
+	  distance = 100,
+	  intensity = 0.5,
+	  sharpness = 0.5,
+	  color = [0, 0, 0],
+	  lightPosition = [-0.35, -0.5]
+	}) => {
 	  const maxDistance = 2e3;
 	  const maxLayers = 24;
-	  const distance = clamp(rawDistance * 2, 0, maxDistance);
-	  const intensity = clamp(rawIntensity, 0, 1);
-	  const sharpness = clamp(rawSharpness, 0, 1);
-	  const interpolatedDistance = invlerp(1, maxDistance, distance);
+	  const cdistance = clamp(distance * 2, 0, maxDistance);
+	  const cintensity = clamp(intensity, 0, 1);
+	  const csharpness = clamp(sharpness, 0, 1);
+	  const interpolatedDistance = invlerp(1, maxDistance, cdistance);
 	  const amountEasing = bezier(0.25, 1 - interpolatedDistance, 0.5, 1);
 	  const amountLayers = Math.round(maxLayers * amountEasing(interpolatedDistance));
 	  const distanceTransparency = bezier(0, 0.3, 0, 0.06);
 	  const transparencyBase = distanceTransparency(interpolatedDistance) / interpolatedDistance * 6.5;
-	  const finalTransparency = transparencyBase / maxLayers * intensity;
+	  const finalTransparency = transparencyBase / maxLayers * cintensity;
 	  const transparencyEasing = bezier(0, 1, 0.8, 0.5);
-	  const distanceX = distance * 0.5;
-	  const distanceY = distance * 0.75;
+	  const distanceX = cdistance * (lightPosition[0] * -1);
+	  const distanceY = cdistance * (lightPosition[1] * -1);
 	  const maxBlur = lerp(200, 500, interpolatedDistance);
-	  const finalBlur = lerp(100, maxBlur, sharpness);
+	  const finalBlur = lerp(100, maxBlur, csharpness);
 	  const blurSharpnessEase = bezier(1, 0, 1, 0);
-	  const easingBlurSharpness = lerp(0, 2, blurSharpnessEase(1 - sharpness));
+	  const easingBlurSharpness = lerp(0, 2, blurSharpnessEase(1 - csharpness));
 	  const blurEasing = bezier(1, easingBlurSharpness, 1, easingBlurSharpness);
-	  const easingSharpness = lerp(0, 0.075, 1 - sharpness);
+	  const easingSharpness = lerp(0, 0.075, 1 - csharpness);
 	  const distanceEasing = bezier(1, easingSharpness, 1, easingSharpness);
 	  return Array.from(Array(amountLayers)).map((_, i) => {
 	    const transparencyCoeff = transparencyEasing(i / amountLayers);
@@ -2849,7 +2855,7 @@
 	    const y = roundPixel(distanceY * distanceCoeff);
 	    const b = roundPixel(finalBlur * blurCoeff);
 	    const t = roundTransparency(finalTransparency * transparencyCoeff);
-	    return `${x}px ${y}px ${b}px rgba(${rgb[0]},${rgb[1]},${rgb[2]},${t})`;
+	    return `${x}px ${y}px ${b}px rgba(${color[0]},${color[1]},${color[2]},${t})`;
 	  }).join(", ");
 	};
 
@@ -8448,6 +8454,7 @@
 	  const sharpnessSharp = 0.9;
 	  const sharpnessSoft = 0.1;
 	  const orangeShadow = [192, 50, 0];
+	  const rightLight = [0.5, -0.5];
 	  const boxBaseProps = {
 	    height: '10vh',
 	    width: '10vw',
@@ -8478,9 +8485,15 @@
 
 	  const box = (...args) => /*#__PURE__*/React.createElement("div", {
 	    style: { ...boxBaseProps,
-	      boxShadow: getSmoothShadow(...args)
+	      boxShadow: getSmoothShadow({
+	        distance: args[0],
+	        intensity: args[1],
+	        sharpness: args[2],
+	        color: args[3],
+	        lightPosition: args[4]
+	      })
 	    }
-	  }, label('distance', args[0]), label('intensity', args[1]), label('sharpness', args[2]), args[3] && label('rgb', `(${args[3].join(',')})`));
+	  }, label('distance', args[0]), label('intensity', args[1]), label('sharpness', args[2]), args[3] && label('color', `(${args[3].join(',')})`), args[4] && label('light', `(${args[4].join(',')})`));
 
 	  return /*#__PURE__*/React.createElement("div", {
 	    style: {
@@ -8497,12 +8510,12 @@
 	      backgroundColor: 'rgb(255,165,0)',
 	      ...columnStyle
 	    }
-	  }, box(50, orangeIntensity, sharpnessSharp, orangeShadow), box(50, orangeIntensity, sharpnessSoft, orangeShadow), box(100, orangeIntensity, sharpnessSharp, orangeShadow), box(100, orangeIntensity, sharpnessSoft, orangeShadow), box(500, orangeIntensity, sharpnessSharp, orangeShadow), box(500, orangeIntensity, sharpnessSoft, orangeShadow)), /*#__PURE__*/React.createElement("div", {
+	  }, box(50, orangeIntensity, sharpnessSharp, orangeShadow), box(50, orangeIntensity, sharpnessSoft, orangeShadow), box(100, orangeIntensity, sharpnessSharp, orangeShadow), box(100, orangeIntensity, sharpnessSoft, orangeShadow, rightLight), box(500, orangeIntensity, sharpnessSharp, orangeShadow), box(500, orangeIntensity, sharpnessSoft, orangeShadow)), /*#__PURE__*/React.createElement("div", {
 	    style: {
 	      backgroundColor: 'rgb(0,0,0,0.1)',
 	      ...columnStyle
 	    }
-	  }, box(50, greyIntensity, sharpnessSharp), box(50, greyIntensity, sharpnessSoft), box(100, greyIntensity, sharpnessSharp), box(100, greyIntensity, sharpnessSoft), box(500, greyIntensity, sharpnessSharp), box(500, greyIntensity, sharpnessSoft)));
+	  }, box(50, greyIntensity, sharpnessSharp), box(50, greyIntensity, sharpnessSoft), box(100, greyIntensity, sharpnessSharp, [0, 0, 0], rightLight), box(100, greyIntensity, sharpnessSoft, [0, 0, 0]), box(500, greyIntensity, sharpnessSharp), box(500, greyIntensity, sharpnessSoft)));
 	}
 
 	const rootElement = document.getElementById('root');

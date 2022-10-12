@@ -1,5 +1,6 @@
 import dts from 'rollup-plugin-dts'
 import esbuild from 'rollup-plugin-esbuild'
+import { uglify } from 'rollup-plugin-uglify'
 
 const name = require('./package.json').main.replace(/\.js$/, '')
 
@@ -11,7 +12,7 @@ const bundle = (config) => ({
 
 export default [
   bundle({
-    plugins: [esbuild()],
+    plugins: [esbuild(), uglify()],
     output: [
       {
         file: `${name}.js`,
